@@ -109,10 +109,12 @@ class Point:
         # y3 = s * (x1 - x3) - y1
         if self.x != other.x:
             # s = ...
+            s = (other.y - self.y) / (other.x - self.x)
             # x3 = ...
+            x3 = pow(s,2) - self.x - other.x
             # y3 = ...
-            # return self.__class__(x3, y3, self.a, self.b)
-            pass
+            y3 = s * (self.x - x3) - self.y
+            return self.__class__(x3, y3, self.a, self.b)
 
         # Case 4: Points are the same (point doubling, self == other)
         # YOUR CODE HERE
