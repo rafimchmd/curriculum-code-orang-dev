@@ -42,12 +42,12 @@ class FieldElement:
         """Two field elements are equal if they have the same num and prime."""
         # YOUR CODE HERE
         # Hint: check that both num and prime match
-        pass
+        return self.num == other.num and self.prime == other.prime
 
     def __ne__(self, other):
         """Two field elements are not equal if __eq__ returns False."""
         # YOUR CODE HERE
-        pass
+        return not (self == other)
 
     def __add__(self, other):
         """Add two field elements: (a + b) mod p"""
@@ -55,7 +55,7 @@ class FieldElement:
             raise TypeError("Cannot add two numbers in different Fields")
         # YOUR CODE HERE
         # Hint: (self.num + other.num) % self.prime
-        pass
+        return FieldElement((other.num + self.num) % self.prime, self.prime)
 
     def __sub__(self, other):
         """Subtract two field elements: (a - b) mod p"""
@@ -63,14 +63,14 @@ class FieldElement:
             raise TypeError("Cannot subtract two numbers in different Fields")
         # YOUR CODE HERE
         # Hint: (self.num - other.num) % self.prime
-        pass
+        return FieldElement((self.num - other.num) % self.prime, self.prime)
 
     def __mul__(self, other):
         """Multiply two field elements: (a * b) mod p"""
         if self.prime != other.prime:
             raise TypeError("Cannot multiply two numbers in different Fields")
         # YOUR CODE HERE
-        pass
+        return FieldElement((self.num * other.num) % self.prime, self.prime)
 
     def __pow__(self, exponent):
         """Raise a field element to a power: (a ** exp) mod p
@@ -82,7 +82,7 @@ class FieldElement:
         # YOUR CODE HERE
         # Hint: n = exponent % (self.prime - 1)
         #       then use Python's built-in pow(self.num, n, self.prime)
-        pass
+        return FieldElement(pow(self.num, exponent % (self.prime - 1), self.prime), self.prime)
 
     def __rmul__(self, coefficient):
         """PROVIDED: lets you write 3 * element. Week 2's elliptic-curve
@@ -101,7 +101,7 @@ class FieldElement:
         # YOUR CODE HERE
         # Hint: use self * (other ** (self.prime - 2))
         # Or compute directly: (self.num * pow(other.num, self.prime - 2, self.prime)) % self.prime
-        pass
+        return FieldElement(self.num * pow(other.num, self.prime -2, self.prime) % self.prime, self.prime)
 
 
 # ============================================================
