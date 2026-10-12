@@ -121,6 +121,9 @@ class Point:
         # slope s = (3 * x1^2 + a) / (2 * y1)
         # x3 = s^2 - 2*x1
         # y3 = s * (x1 - x3) - y1
+        s = (3 * pow(self.x, 2) + self.a) / (2 * self.y)
+        x3 = pow(s, 2) - (2 * self.x)
+        y3 = s * (self.x - x3) - self.y
         if self == other:
             # Case 5: tangent is vertical (y = 0)
             if self.y == 0 * self.x:  # handles both int and FieldElement
@@ -130,7 +133,7 @@ class Point:
             # x3 = ...
             # y3 = ...
             # return self.__class__(x3, y3, self.a, self.b)
-            pass
+            return self.__class__(x3, y3, self.a, self.b)
 
 
 # ============================================================
@@ -154,17 +157,16 @@ def test_point_addition_reals():
     # Point (2, 2): 4 = 8 - 14 + 10 = 4 ✓
 
     # YOUR CODE HERE
-    # p1 = Point(1, 2, -7, 10)
-    # p2 = Point(2, 2, -7, 10)
-    # p3 = p1 + p2
-    # print(f"  {p1} + {p2} = {p3}")
+    p1 = Point(1, 2, -7, 10)
+    p2 = Point(2, 2, -7, 10)
+    p3 = p1 + p2
+    print(f"  {p1} + {p2} = {p3}")
 
     # Test identity element
-    # inf = Point(None, None, -7, 10)
-    # assert p1 + inf == p1, "Adding infinity should return the same point"
-    # print(f"  {p1} + infinity = {p1 + inf} ... PASS")
+    inf = Point(None, None, -7, 10)
+    assert p1 + inf == p1, "Adding infinity should return the same point"
+    print(f"  {p1} + infinity = {p1 + inf} ... PASS")
 
-    pass
 
 
 # ============================================================

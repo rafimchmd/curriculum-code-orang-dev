@@ -39,7 +39,10 @@ BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 # ---------------------------------------------------------------------------
 def sec(point: Point, compressed: bool = True) -> bytes:
     # YOUR CODE HERE
-    return None
+    if compressed:
+        prefix = b"\x02" if point.y % 2 == 0 else b"\x03"
+        return prefix + point.x.to_bytes(32, "big")
+    return b"\x04" + point.x.to_bytes(32, "big") + point.y.to_bytes(32, "big")
 
 
 # ---------------------------------------------------------------------------
@@ -53,7 +56,13 @@ def sec(point: Point, compressed: bool = True) -> bytes:
 # ---------------------------------------------------------------------------
 def encode_base58(b: bytes) -> str:
     # YOUR CODE HERE
-    return None
+    num = int.from_bytes(b, "big")
+    result = ""
+    alphabet = BASE58_ALPHABET
+    while num > 0:
+        num, remainder = divmod(num, 58)
+        result = alphabet[remainder] + result
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -61,7 +70,8 @@ def encode_base58(b: bytes) -> str:
 # ---------------------------------------------------------------------------
 def encode_base58_check(payload: bytes) -> str:
     # YOUR CODE HERE
-    return None
+    hash = hash256(payload)[:4]
+    return encode_base58(payload + hash)
 
 
 # ---------------------------------------------------------------------------
@@ -73,7 +83,21 @@ def encode_base58_check(payload: bytes) -> str:
 # ---------------------------------------------------------------------------
 def decode_base58_check(s: str) -> bytes:
     # YOUR CODE HERE
-    return None
+    num = 0
+    for c in s:
+        if c not in BASE58_ALPHABET:
+            raise ValueError(f"Invalid character {c} in Base58 string")
+        num = num * 58 + BASE58_ALPHABET.index(c)
+    
+    # Convert the number back to bytes
+    byte_length = (num.bit_length() + 7) // 8
+    payload = num.to_bytes(byte_length, "big")
+    
+    # Verify the checksum
+    if hash256(payload[:-4])[:4] != payload[-4:]:
+        raise ValueError("Invalid checksum")
+    
+    return payload[:-4]
 
 
 # ---------------------------------------------------------------------------
@@ -82,7 +106,10 @@ def decode_base58_check(s: str) -> bytes:
 # ---------------------------------------------------------------------------
 def p2pkh_address(sec_bytes: bytes, testnet: bool = False) -> str:
     # YOUR CODE HERE
-    return None
+    version_byte = b"\x6f" if testnet else b"\x00"
+    sha_256_hash = sha256(sec_bytes)
+    hash160_value = hash160(sha_256_hash)
+    return encode_base58_check(version_byte + hash160_value)
 
 
 # ---------------------------------------------------------------------------
@@ -92,7 +119,10 @@ def p2pkh_address(sec_bytes: bytes, testnet: bool = False) -> str:
 # ---------------------------------------------------------------------------
 def p2wpkh_address(sec_bytes: bytes, testnet: bool = False) -> str:
     # YOUR CODE HERE
-    return None
+    hrp = "tb" if testnet else "bc"
+    sha_256_hash = sha256(sec_bytes)
+    hash160_value = hash160(sha_256_hash)
+    return bech32_segwit(hrp, 0, hash160_value)
 
 
 # ---------------------------------------------------------------------------
@@ -103,7 +133,11 @@ def p2wpkh_address(sec_bytes: bytes, testnet: bool = False) -> str:
 # ---------------------------------------------------------------------------
 def wif(secret: int, compressed: bool = True, testnet: bool = False) -> str:
     # YOUR CODE HERE
-    return None
+    version_byte = b"\xef" if testnet else b"\x80"
+    secret_bytes = secret.to_bytes(32, "big")
+    if compressed:
+        secret_bytes += b"\x01"
+    return encode_base58_check(version_byte + secret_bytes)
 
 
 # ---------------------------------------------------------------------------
