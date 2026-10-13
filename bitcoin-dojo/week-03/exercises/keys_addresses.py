@@ -24,7 +24,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "lib"))
-from dojo import G, Point, sha256, hash256, hash160, bech32_segwit  # noqa: E402,F401
+from dojo import G, Point, sha256, hash256, hash160, bech32_segwit  # noqa: sudo chown -R james:staff .E402,F401
 
 BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 
@@ -139,6 +139,11 @@ def wif(secret: int, compressed: bool = True, testnet: bool = False) -> str:
         secret_bytes += b"\x01"
     return encode_base58_check(version_byte + secret_bytes)
 
+print("p2wpkh address creation test:", p2wpkh_address(sec(Point(3, 5), True), testnet=False))
+print("p2pkh address creation test:", p2pkh_address(sec(Point(3, 5), True), testnet=False))
+print("p2pkh address creation test uncompressed:", p2pkh_address(sec(Point(3, 5), False), testnet=False))
+print("wif creation test:", wif(5, compressed=True, testnet=False))
+print("wif creation test uncompressed:", wif(5, compressed=False, testnet=False))
 
 # ---------------------------------------------------------------------------
 # Discussion (bring to the call):
