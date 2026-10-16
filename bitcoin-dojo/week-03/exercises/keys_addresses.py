@@ -153,3 +153,16 @@ print("wif creation test uncompressed:", wif(5, compressed=False, testnet=False)
 #     uncompressed). Why can that lose people money when they restore a wallet?
 #  3. Why hash160 and not just sha256? What do we gain and give up with 20 bytes?
 # ---------------------------------------------------------------------------
+
+# Answers to the discussion questions:
+# 1. The full path from a 256-bit secret to a bc1q...address involves several steps:
+#    - Start with a 256-bit secret (private key).
+#    - Check if its a testnet or mainnet if mainnet use bc as a prefix
+#    - Result of 256 bit encrypted will be encrypted using hash160
+#    - Concatenate the version byte and the hash160 result.
+#    - Encode the result using bech32 encoding to get the final address.
+
+# 2. The same secret can give two different P2PKH addresses (compressed and uncompressed) because the public key derived from the private key can be represented in two formats. If a user restores a wallet and uses the wrong format, they may not be able to access their funds, leading to potential loss of money.
+# Between compressed and uncompressed formats, the prefix byte differs, which results in different addresses. If a user only has the compressed address and tries to restore using the uncompressed format, they will not be able to access their funds.
+
+# 3. Hash160 is used instead of just sha256 because it provides a shorter output (20 bytes) which is more efficient for storage and transmission. It also adds an additional layer of security by combining two different hashing algorithms (sha256 followed by ripemd160). However, using a shorter hash means there is a higher chance of collisions compared to using a longer hash like sha256 alone.
