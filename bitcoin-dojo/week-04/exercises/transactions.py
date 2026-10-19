@@ -34,19 +34,26 @@ from dojo import hash256  # noqa: E402
 #   <= 0xffff         0xfd + 2 bytes little-endian
 #   <= 0xffffffff     0xfe + 4 bytes little-endian
 #   otherwise         0xff + 8 bytes little-endian
-#
+
+# Notes:
+# - To represent a hex you should write \0x followed by the hex digits, e.g. b"\x01\x02\x03"
+# - Write 0x without \ to represent a hex number
+# - BytesIO object .read() will read and consumes the next byte in the stream, it moves the stream position forward
+# - If only one marker remains in bytes, and we try to .from_bytes(2) it will always return 0, since the bytes not same with the array there's no indexing
 # ---------------------------------------------------------------------------
 def read_varint(s: BytesIO) -> int:
     # YOUR CODE HERE
-    if not s.read(1):
+    prefix = s.read(1)
+    print("Prefix byte:", prefix.hex())
+    if not prefix:
         raise ValueError("No bytes to read for varint")
-    
-    varint = s.read(1)[0]
-    if varint < 0xfd:
+
+    varint = prefix[0]
+    if varint < 0xFD:
         return varint
-    elif varint == 0xfd:
+    elif varint == 0xFD:
         return int.from_bytes(s.read(2), "little")
-    elif varint == 0xfe:
+    elif varint == 0xFE:
         return int.from_bytes(s.read(4), "little")
     else:
         return int.from_bytes(s.read(8), "little")
@@ -66,7 +73,12 @@ def encode_varint(i: int) -> bytes:
     else:
         return b"\xff" + i.to_bytes(8, "little")
 
-print(encode_varint(100))
+
+original_number = 255
+encoded_bytes = encode_varint(original_number)
+print(f"Encoded bytes: {encoded_bytes.hex()}")
+decoded_number = read_varint(BytesIO(encoded_bytes))
+print(f"Decoded number: {decoded_number}")
 # ---------------------------------------------------------------------------
 # Exercise 2 - Inputs and outputs
 #
