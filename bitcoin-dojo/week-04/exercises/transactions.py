@@ -34,17 +34,39 @@ from dojo import hash256  # noqa: E402
 #   <= 0xffff         0xfd + 2 bytes little-endian
 #   <= 0xffffffff     0xfe + 4 bytes little-endian
 #   otherwise         0xff + 8 bytes little-endian
+#
 # ---------------------------------------------------------------------------
 def read_varint(s: BytesIO) -> int:
     # YOUR CODE HERE
-    return None
+    if not s.read(1):
+        raise ValueError("No bytes to read for varint")
+    
+    varint = s.read(1)[0]
+    if varint < 0xfd:
+        return varint
+    elif varint == 0xfd:
+        return int.from_bytes(s.read(2), "little")
+    elif varint == 0xfe:
+        return int.from_bytes(s.read(4), "little")
+    else:
+        return int.from_bytes(s.read(8), "little")
 
 
 def encode_varint(i: int) -> bytes:
     # YOUR CODE HERE
-    return None
+    if i < 0xfd:
+        print(int.from_bytes(b"\xfd"))
+        return bytes([i])
+    elif i <= 0xffff:
+        print(int.from_bytes(b"\xffff"))
+        return b"\xfd" + i.to_bytes(2, "little")
+    elif i <= 0xffffffff:
+        print(int.from_bytes(b"\0xffffffff"))
+        return b"\xfe" + i.to_bytes(4, "little")
+    else:
+        return b"\xff" + i.to_bytes(8, "little")
 
-
+print(encode_varint(100))
 # ---------------------------------------------------------------------------
 # Exercise 2 - Inputs and outputs
 #
