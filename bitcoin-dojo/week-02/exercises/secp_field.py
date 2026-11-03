@@ -7,6 +7,7 @@ from dojo import hash256
 import importlib.util
 from pathlib import Path
 from elliptic_curves import Point
+import random
 
 def _load_field_element():
     """Use YOUR Week 1 FieldElement if it works; otherwise the reference one."""
@@ -29,6 +30,7 @@ P = 2 ** 256 - 2 **32 - 977
 A = 0
 B = 7
 N = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
+G = S256Point(0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798,0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8)
 
 class SECP256Field(_load_field_element()):
 
@@ -52,4 +54,32 @@ class SECP256Point(Point):
         coef = coeff % N
         return super().__rmul__(coef)
 
-print(SECP256Field(3))
+    def verify(self, z, sig):
+        s_inv = pow(sig.s, N-2, N)
+        u = z*s_inv
+        v=sig.r*s_inv
+        total=u * G + v * self
+        return total.x.num == sig.r
+
+class PrivateKey:
+    def __init__(self, secret):
+        self.secret = secret
+        self.point = secret * G
+    
+    def sign(self):
+        k = random.randint(0, N)
+        r = (k*G).x.num
+        k_inv = pow(k, N-2, N)
+        s = (z + (r*self.secret)) * k_inv % N
+        if s > N/2:
+            s = N-s
+        return Signature(r, s)
+
+class Signature:
+    def __init__(self, r, s):
+        self.r = r
+        self.s = s
+
+    def __repr__(self):
+        return "Signature {:x}{:x}".format(self.r, self.s)
+
