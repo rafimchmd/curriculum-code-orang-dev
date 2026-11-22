@@ -32,6 +32,7 @@ BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 # ---------------------------------------------------------------------------
 # Exercise 1 - SEC format (serializing a public key)
 #
+# SEC (Standards for Efficient Cryptography) format is used to serialize public keys.
 #   uncompressed:  04 || x (32 bytes) || y (32 bytes)             65 bytes
 #   compressed:    02 if y is even, 03 if odd || x (32 bytes)     33 bytes
 #
@@ -139,6 +140,7 @@ def wif(secret: int, compressed: bool = True, testnet: bool = False) -> str:
         secret_bytes += b"\x01"
     return encode_base58_check(version_byte + secret_bytes)
 
+print(sec(Point(3, 5), False)[1])
 print("p2wpkh address creation test:", p2wpkh_address(sec(Point(3, 5), True), testnet=False))
 print("p2pkh address creation test:", p2pkh_address(sec(Point(3, 5), True), testnet=False))
 print("p2pkh address creation test uncompressed:", p2pkh_address(sec(Point(3, 5), False), testnet=False))
