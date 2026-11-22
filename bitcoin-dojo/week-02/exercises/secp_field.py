@@ -30,7 +30,6 @@ P = 2 ** 256 - 2 **32 - 977
 A = 0
 B = 7
 N = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
-G = S256Point(0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798,0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8)
 
 class SECP256Field(_load_field_element()):
 
@@ -42,7 +41,7 @@ class SECP256Field(_load_field_element()):
 
 class SECP256Point(Point):
 
-    def __init(self, x, y, a=None,b=None):
+    def __init__(self, x, y, a=None,b=None):
         a = SECP256Field(A)
         b = SECP256Field(B)
         if type(x) == int:
@@ -66,7 +65,7 @@ class PrivateKey:
         self.secret = secret
         self.point = secret * G
     
-    def sign(self):
+    def sign(self, z):
         k = random.randint(0, N)
         r = (k*G).x.num
         k_inv = pow(k, N-2, N)
@@ -82,4 +81,12 @@ class Signature:
 
     def __repr__(self):
         return "Signature {:x}{:x}".format(self.r, self.s)
-
+    
+G = SECP256Point(x=0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798,
+                 y=0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8)
+e = int.from_bytes(hash256(b"UTXO management"), "big")
+z = int.from_bytes(hash256(b"UTXO management"), "big")
+point = e * G
+sig = PrivateKey(e).sign(z)
+print(sig)
+print(point.verify(z, sig))
